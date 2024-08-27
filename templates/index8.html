@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VigNet</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        h1, h2, h3, p {
+            text-align: center;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            overflow-x: hidden; /* 水平スクロールを隠す */
+            overflow-y: auto; /* 垂直スクロールを表示 */
+            max-height: 350px; /* グリッドの高さを400pxに制限 */
+            max-width: 1500px;
+        }
+
+        .grid-item {
+            border: 2px solid #ccc;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .grid-item img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .selection-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #current-selection img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+        }
+
+        #your-selection {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            gap: 50px;
+        }
+
+        #your-selection img {
+            max-width: 500px;
+            height: auto;
+            border: 2px solid #ccc;
+        }
+
+        #complete-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #selected-character-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+        }
+
+        #selected-stage-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+        }
+
+        .selected {
+            border-color: #4CAF50 !important;
+            border-width: 5px !important;
+        }
+
+        #instruction-text {
+            color: #000000;
+            font-size: 18px;
+            margin-top: -10px;  /* Adjust the spacing as needed */
+            margin-bottom: 20px; /* Space below the instruction text */
+        }
+
+        #description-text {
+            color: #000000;
+            font-size: 18px;
+            margin-top: -10px;  /* Adjust the spacing as needed */
+            margin-bottom: 20px; /* Space below the instruction text */
+        }
+
+        #decision-text {
+            color: #000000;
+            font-size: 18px;
+            margin-top: -10px;  /* Adjust the spacing as needed */
+            margin-bottom: 20px; /* Space below the instruction text */
+        }
+
+    </style>
+</head>
+<body>
+    <h1>VigNet</h1>
+    <p id="instruction-text" style="margin-bottom: 50px;">Please choose your favorite images.</p>
+
+    <!-- Character Section -->
+    <h2>Character</h2>
+    <p id="description-text">Please select your preferred character. You can view detailed information by hovering over each character.</p>
+    <div class="grid-container" id="character-grid">
+        {% for image in characters %}
+            <div class="grid-item">
+                <img src="{{ url_for('static', filename='test_character/' ~ image) }}" 
+                     data-image-name="{{ image }}" data-image-type="test_character">
+            </div>
+        {% endfor %}
+    </div>
+    <div class="selection-container">
+        <h2>Current Character Selection</h2>
+        <div id="current-character-selection" style="margin-bottom: 100px;">
+            <img src="{{ url_for('static', filename='no_image2.png') }}" alt="No Character Selected" id="selected-character-image">
+        </div>
+    </div>
+    
+    <!-- Stage Section -->
+    <h2>Stage</h2>
+    <p id="description-text">Please select the stage where the scene will take place. Each stage has unique characteristics and atmosphere, so choose according to your preference.</p>
+    <div class="grid-container" id="stage-grid">
+        {% for image in stages %}
+            <div class="grid-item">
+                <img src="{{ url_for('static', filename='test_stage/' ~ image) }}" 
+                     data-image-name="{{ image }}" data-image-type="test_stage">
+            </div>
+        {% endfor %}
+    </div>
+    <div class="selection-container">
+        <h2>Current Stage Selection</h2>
+        <div id="current-stage-selection" style="margin-bottom: 200px;">
+            <img src="{{ url_for('static', filename='no_image2.png') }}" alt="No Stage Selected" id="selected-stage-image">
+        </div>
+    </div>
+
+    <!-- Your Selection Section -->
+    <h2>Your Selection</h2>
+    <div id="your-selection"  style="margin-bottom: 50px;">
+        <div>
+            <h3>Character</h3>
+            <img src="{{ url_for('static', filename='no_image2.png') }}" alt="No Character Selected" id="final-character-selection">
+        </div>
+        <div>
+            <h3>Stage</h3>
+            <img src="{{ url_for('static', filename='no_image2.png') }}" alt="No Stage Selected" id="final-stage-selection">
+        </div>
+    </div>
+
+    <!-- Complete Button -->
+    <p id="description-text">Once you have completed your selection, please press the "Selection Complete" button.</p>
+    <button id="complete-button">Complete!</button>
+
+    <script>
+        let selectedCharacter = null;
+        let selectedStage = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            function selectImage(imageElement) {
+                const imageName = imageElement.getAttribute('data-image-name');
+                const imageType = imageElement.getAttribute('data-image-type');
+                const imagePath = `/static/${imageType}/${imageName}`;
+
+                // Clear any previously selected images in the grid
+                if (imageType === 'test_character') {
+                    selectedCharacter = imagePath;
+                    document.getElementById('selected-character-image').src = imagePath;
+                    document.getElementById('final-character-selection').src = imagePath;
+
+                    // Remove 'selected' class from all character images
+                    document.querySelectorAll('#character-grid .grid-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+
+                    // Add 'selected' class to the clicked character image
+                    imageElement.parentElement.classList.add('selected');
+                } else if (imageType === 'test_stage') {
+                    selectedStage = imagePath;
+                    document.getElementById('selected-stage-image').src = imagePath;
+                    document.getElementById('final-stage-selection').src = imagePath;
+
+                    // Remove 'selected' class from all stage images
+                    document.querySelectorAll('#stage-grid .grid-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+
+                    // Add 'selected' class to the clicked stage image
+                    imageElement.parentElement.classList.add('selected');
+                }
+            }
+
+            document.querySelectorAll('.grid-item img').forEach(item => {
+                item.addEventListener('click', function () {
+                    selectImage(this);
+                });
+            });
+
+            document.getElementById('complete-button').addEventListener('click', function () {
+                fetch('/complete_selection', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        character_image: selectedCharacter,
+                        stage_image: selectedStage
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'error') {
+                        alert(data.message);
+                    } else {
+                        window.close();  // Close the window/tab
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
