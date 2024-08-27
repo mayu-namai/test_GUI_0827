@@ -64,7 +64,6 @@ torch==1.12.1+cu116
 torchaudio==0.12.1
 torchfile==0.1.0
 torchvision==0.13.1+cu116
-tornado @ file:///C:/ci/tornado_1606924294691/work
 tqdm==4.64.0
 typeguard==2.13.3
 typing_extensions==4.12.2
