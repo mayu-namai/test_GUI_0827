@@ -93,7 +93,7 @@ Pillow==9.2.0
 ply==3.11
 prometheus-client @ file:///opt/conda/conda-bld/prometheus_client_1643788673601/work
 prompt-toolkit @ file:///tmp/build/80754af9/prompt-toolkit_1633440160888/work
-protobuf==3.20.1
+protobuf==5.27.3
 pure-eval @ file:///opt/conda/conda-bld/pure_eval_1646925070566/work
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
